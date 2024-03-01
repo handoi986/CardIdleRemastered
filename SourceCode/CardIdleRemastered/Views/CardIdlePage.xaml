@@ -92,8 +92,10 @@
                    FontSize="24" Foreground="{DynamicResource DynStatsHeaders}"/>
         </Grid>
 
-        <ItemsControl Grid.Row="1" 
-                      Margin="25,0"
+        <ScrollViewer Grid.Row="1"
+                      VerticalScrollBarVisibility="Hidden"
+                      HorizontalScrollBarVisibility="Disabled">
+        <ItemsControl Margin="25,0"
                       Name="ListLines"
                       ItemsSource="{Binding MessageLines}" 
                       TextElement.Foreground="White">
@@ -145,5 +147,6 @@
                 </DataTemplate>
             </ItemsControl.ItemTemplate>
         </ItemsControl>
+        </ScrollViewer>
     </Grid>
 </UserControl>

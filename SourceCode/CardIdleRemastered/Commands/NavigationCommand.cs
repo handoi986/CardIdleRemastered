@@ -9,7 +9,9 @@ namespace CardIdleRemastered.Commands
         {
             var path = parameter as string;
             if (String.IsNullOrWhiteSpace(path) == false)
-                Process.Start(new ProcessStartInfo(path));
+            {
+                Process.Start(new ProcessStartInfo(path) { UseShellExecute = true });
+            }
         }
     }
 }

@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows.Threading;
 
@@ -88,24 +86,33 @@ namespace CardIdleRemastered
                 return;
 
             if (resetCounter)
-                _counter = 0;
+            {
+                _counter = (int)Interval.TotalSeconds;
+            }
 
-            Task<IEnumerable<BadgeModel>> tBadges = null;
+            _tmSync.Stop();
+
             try
             {
                 _syncRunning = true;
 
-                tBadges = LoadBadgesAsync();
+                var tBadges = LoadBadgesAsync();
                 var tProfile = LoadProfileAsync();
                 await Task.WhenAll(tBadges, tProfile);
 
                 CompleBadgeList = tBadges.Result.ToList();
-                if (BadgeListSync != null)
-                    BadgeListSync();
+
+                BadgeListSync?.Invoke();
             }
             finally
             {
                 _syncRunning = false;
+                _tmSync.Start();
+
+                if (resetCounter)
+                {
+                    _counter = 0;
+                }
             }
         }
 
@@ -156,7 +163,7 @@ namespace CardIdleRemastered
                 if (stock != null)
                 {
                     badge.CardPrice = stock.CardValue;
-                    badge.BadgePrice = stock.Normal;
+                    badge.BadgePrice = stock.BadgePrice;
                 }
             }
 

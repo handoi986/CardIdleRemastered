@@ -25,15 +25,7 @@ namespace CardIdleRemastered
             cookies.Add(new Cookie("steamLoginSecure", Storage.SteamLoginSecure ?? string.Empty) { Domain = target.Host });
             cookies.Add(new Cookie("steamparental", Storage.SteamParental ?? string.Empty) { Domain = target.Host });
             cookies.Add(new Cookie("steamRememberLogin", Storage.SteamRememberLogin ?? string.Empty) { Domain = target.Host });
-            cookies.Add(new Cookie(GetSteamMachineAuthCookieName(), Storage.MachineAuth ?? string.Empty) { Domain = target.Host });
             return cookies;
-        }
-
-        private static string GetSteamMachineAuthCookieName()
-        {
-            if (Storage.SteamLoginSecure != null && Storage.SteamLoginSecure.Length > 17)
-                return string.Format("steamMachineAuth{0}", Storage.SteamLoginSecure.Substring(0, 17));
-            return "steamMachineAuth";
         }
 
         protected override WebRequest GetWebRequest(Uri address)
@@ -46,7 +38,7 @@ namespace CardIdleRemastered
 
         protected override WebResponse GetWebResponse(WebRequest request, IAsyncResult result)
         {
-            HttpWebResponse baseResponse = base.GetWebResponse(request) as HttpWebResponse;
+            HttpWebResponse baseResponse = (result as Task<WebResponse>).Result as HttpWebResponse;
 
             if (baseResponse == null)
                 return null;

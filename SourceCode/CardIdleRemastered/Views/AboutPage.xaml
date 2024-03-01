@@ -38,10 +38,7 @@
                 <RowDefinition Height="*"/>
                 <RowDefinition />
                 <RowDefinition />
-                <RowDefinition />
-                <RowDefinition Height="*"/>
-                <RowDefinition />
-                <RowDefinition />
+                <RowDefinition Height="2*"/>
             </Grid.RowDefinitions>
             <TextBlock>
                 <Run Text="Card Idle Remastered" Foreground="{StaticResource TitleBrush}"/>
@@ -73,27 +70,7 @@
                 </TextBlock.InputBindings>
             </TextBlock>
 
-            <TextBlock Grid.Row="8" Text="Notifications about new releases in my Twitter"/>
-            <TextBlock Grid.Row="9" Name="LblTwitter"
-                       Text="https://twitter.com/Alex_Sharykin"
-                       Style="{StaticResource Link}">
-                <TextBlock.InputBindings>
-                    <MouseBinding Gesture="LeftClick"
-                                  Command="{StaticResource Redirect}"
-                                  CommandParameter="{Binding ElementName=LblTwitter, Path=Text}"/>
-                </TextBlock.InputBindings>
-            </TextBlock>
-            <TextBlock Grid.Row="10" Name="LblHashtag"
-                       Text="https://twitter.com/hashtag/CardIdleRemastered"
-                       Style="{StaticResource Link}">
-                <TextBlock.InputBindings>
-                    <MouseBinding Gesture="LeftClick"
-                                  Command="{StaticResource Redirect}"
-                                  CommandParameter="{Binding ElementName=LblHashtag, Path=Text}"/>
-                </TextBlock.InputBindings>
-            </TextBlock>
-
-            <StackPanel Grid.Row="12">
+            <StackPanel Grid.Row="8">
                 <TextBlock>
                     <Run Text="Showcase data is obtained from"/>
                     <Run Text="Steam Card Exchange .Net" Foreground="{StaticResource TitleBrush}"/>
@@ -105,7 +82,7 @@
                 </TextBlock>
             </StackPanel>
 
-            <TextBlock Name="LblSce" Grid.Row="13"
+            <TextBlock Name="LblSce" Grid.Row="9"
                        Text="http://steamcommunity.com/groups/card-trading-card-trades"
                        Style="{StaticResource Link}">
                 <TextBlock.InputBindings>

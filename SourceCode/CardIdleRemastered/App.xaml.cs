@@ -29,33 +29,29 @@ namespace CardIdleRemastered
 
             Logger.Info(String.Format("{0} {1}bit", Environment.OSVersion, Environment.Is64BitOperatingSystem ? 64 : 32));
 
-            string localDatafolder = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
-            string appFolder = Path.Combine(localDatafolder, Path.GetFileNameWithoutExtension(AppSystemName));
-            if (Directory.Exists(appFolder) == false)
-                Directory.CreateDirectory(appFolder);
+            var (settingsStorage, showcaseStorage, priceStorage) = SetupStorage();
 
-            string storageFile = Path.Combine(appFolder, "Settings.txt");
-            IsNewUser = !File.Exists(storageFile);
+            IsNewUser = !File.Exists(settingsStorage.FileName);
 
-            var storage = new SettingsStorage();
-            storage.FileName = storageFile;
-            storage.Init();
+            CookieClient.Storage = settingsStorage;
 
-            CookieClient.Storage = storage;
-
-            _account = new AccountModel();
-            _account.Storage = storage;
-            _account.ShowcaseStorage = new FileStorage("ShowcaseDb.txt");
-            _account.PricesStorage = new FileStorage(Path.Combine(appFolder, "PricesDb.txt"));
+            _account = new AccountModel
+            {
+                Storage = settingsStorage,
+                ShowcaseStorage = showcaseStorage,
+                PricesStorage = priceStorage
+            };
 
             Palette = PaletteItemsCollection.Create();
-            if (storage.AppBrushes != null)
-                Palette.Deserialize(storage.AppBrushes.OfType<string>());
+            if (settingsStorage.AppBrushes != null)
+            {
+                Palette.Deserialize(settingsStorage.AppBrushes.OfType<string>());
+            }
             Palette.SetNotifier(() =>
             {
-                storage.AppBrushes.Clear();
-                storage.AppBrushes.AddRange(Palette.Serialize().ToArray());
-                storage.Save();
+                settingsStorage.AppBrushes.Clear();
+                settingsStorage.AppBrushes.AddRange(Palette.Serialize().ToArray());
+                settingsStorage.Save();
             });
 
             var w = new BadgesWindow { DataContext = _account };
@@ -78,6 +74,27 @@ namespace CardIdleRemastered
         {
             Logger.Exception(arg.Exception, "DispatcherUnhandledException");
             arg.Handled = true;
+        }
+
+        public static (SettingsStorage settings, FileStorage showcases, FileStorage prices) SetupStorage()
+        {
+            string localDatafolder = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
+            string appFolder = Path.Combine(localDatafolder, Path.GetFileNameWithoutExtension(AppSystemName));
+            if (Directory.Exists(appFolder) == false)
+            {
+                Directory.CreateDirectory(appFolder);
+            }
+
+            string storageFile = Path.Combine(appFolder, "Settings.txt");
+
+            var settingsStorage = new SettingsStorage();
+            settingsStorage.FileName = storageFile;
+            settingsStorage.Init();
+
+            var showcaseStorage = new FileStorage("ShowcaseDb.txt");
+            var pricesStorage = new FileStorage(Path.Combine(appFolder, "PricesDb.txt"));
+
+            return (settingsStorage, showcaseStorage, pricesStorage);
         }
 
         public static App CardIdle

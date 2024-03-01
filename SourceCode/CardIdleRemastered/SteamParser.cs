@@ -45,8 +45,12 @@ namespace CardIdleRemastered
                 try
                 {
                     response = await DownloadString("http://api.steampowered.com/ISteamApps/GetAppList/v2");
-                    var appList = JsonConvert.DeserializeObject<SteamAppList>(response);
-                    _appsCache = appList.applist.apps.ToDictionary(a => a.appid);
+                    var data = JsonConvert.DeserializeObject<SteamAppList>(response);
+                    _appsCache = new Dictionary<string, GameIdentity>();
+                    foreach(var item in data.applist.apps)
+                    {
+                        _appsCache[item.appid] = item;
+                    }
                 }
                 catch (Exception ex)
                 {
@@ -73,21 +77,22 @@ namespace CardIdleRemastered
         {
             // profile background
             HtmlNode html = null;
-            var nodes = root.SelectNodes("//div[@class='profile_background_image_content ']");
+            var nodes = root.SelectNodes("//div[contains(@class, 'no_header profile_page')]");
             if (nodes != null)
                 html = nodes.FirstOrDefault();
+            string bg = null;
             if (html != null)
             {
                 var bgi = html.Attributes["style"].Value;
-                int lp = bgi.IndexOf('(') + 1;
-                int rp = bgi.IndexOf(')');
-                string src = bgi.Substring(lp, rp - lp);
-                result.BackgroundUrl = src;
+                if (!string.IsNullOrEmpty(bgi))
+                {
+                    int lp = bgi.IndexOf('(') + 1;
+                    int rp = bgi.IndexOf(')');
+                    string src = bgi.Substring(lp, rp - lp);
+                    bg = src.Trim(' ', '\'');
+                }
             }
-            else
-            {
-                result.BackgroundUrl = null;
-            }
+            result.BackgroundUrl = bg;
 
             // avatar
             html = root.SelectNodes("//div[@class='playerAvatarAutoSizeInner']").FirstOrDefault();
@@ -278,22 +283,11 @@ namespace CardIdleRemastered
         /// Loads common and foil badges for a single game
         /// </summary>
         /// <param name="appId"></param>
-        /// <param name="args"></param>
-        /// <returns></returns>
-        public async Task<BadgeShowcase> GetBadgeShowcase(string appId, IDictionary<string, string> args)
+        public static async Task<BadgeShowcase> GetBadgeShowcase(string appId)
         {
             string site = "http://www.st3amcard3xchang3.n3t/ind3x.php?gam3pag3-appid-".Replace("3", "e") + appId;
 
-            var dataRequest = (HttpWebRequest)HttpWebRequest.Create(site);
-            dataRequest.CookieContainer = new CookieContainer();
-
-            var dataResponse = (HttpWebResponse)(await dataRequest.GetResponseAsync());
-
-            string response;
-            using (var responseRdr = new StreamReader(dataResponse.GetResponseStream(), Encoding.UTF8))
-            {
-                response = responseRdr.ReadToEnd();
-            }
+            var response = await DownloadString(site);
 
             var showcase = new BadgeShowcase(appId, appId);
 
@@ -301,10 +295,15 @@ namespace CardIdleRemastered
             doc.LoadHtml(response);
 
             // parse common badges
-            HtmlNode badgesDiv = doc.DocumentNode.SelectSingleNode("//div[@id='badges']");
+            HtmlNode badgesDiv = doc.DocumentNode.SelectSingleNode("//span[@id='series-1-badges']");
 
             if (badgesDiv != null)
-                badgesDiv = badgesDiv.SelectSingleNode("div[@class='showcase-element-container badge']");
+                badgesDiv = badgesDiv.ParentNode.NextSibling;
+
+            while(badgesDiv != null && badgesDiv.Name != "div")
+            {
+                badgesDiv = badgesDiv.NextSibling;
+            }
 
             if (badgesDiv != null)
             {
@@ -314,10 +313,15 @@ namespace CardIdleRemastered
             }
 
             // parse foil badge
-            HtmlNode foilDiv = doc.DocumentNode.SelectSingleNode("//div[@id='foilbadges']");
+            HtmlNode foilDiv = doc.DocumentNode.SelectSingleNode("//span[@id='series-1-foilbadges']");
 
             if (foilDiv != null)
-                foilDiv = foilDiv.SelectSingleNode("div[@class='showcase-element-container badge']");
+                foilDiv = foilDiv.ParentNode.NextSibling;
+
+            while (foilDiv != null && foilDiv.Name != "div")
+            {
+                foilDiv = foilDiv.NextSibling;
+            }
 
             if (foilDiv != null)
             {
@@ -329,53 +333,33 @@ namespace CardIdleRemastered
             return showcase;
         }
 
-        private IEnumerable<BadgeLevelData> ParseBadgesContainer(HtmlNode badgesDiv)
+        private static IEnumerable<BadgeLevelData> ParseBadgesContainer(HtmlNode badgesDiv)
         {
-            foreach (HtmlNode showcaseDiv in badgesDiv.SelectNodes("div[@class='showcase-element']"))
+            foreach (HtmlNode showcaseDiv in badgesDiv.Descendants("div").Where(n => n.HasClass("p-5")))
             {
-                var img = showcaseDiv.SelectSingleNode("img[@class='element-image']");
+                var img = showcaseDiv.SelectSingleNode("img[@class='sm:h-[80px]']");
                 if (img == null)
                     continue;
 
-                var levelSpan = showcaseDiv.SelectSingleNode("span[@class='element-experience']");
+                var nameDiv = showcaseDiv.Descendants("div").Where(n => n.HasClass("text-sm")).FirstOrDefault();
 
-                string level = levelSpan.InnerText;
-                int idx = level.IndexOf("XP", 0, StringComparison.InvariantCultureIgnoreCase);
-                if (idx > 0)
-                    level = level.Substring(0, idx);
+                var levelDiv = showcaseDiv.Descendants("div").Where(n => n.HasClass("text-xs")).FirstOrDefault();
 
                 yield return new BadgeLevelData
-                             {
-                                 PictureUrl = img.GetAttributeValue("src", ""),
-                                 Name = img.GetAttributeValue("alt", ""),
-                                 Level = level
-                             };
+                {
+                    PictureUrl = img.GetAttributeValue("src", ""),
+                    Name = nameDiv?.InnerText ?? img.GetAttributeValue("alt", ""),
+                    Level = levelDiv?.InnerText ?? ""
+                };
             }
         }
 
         #endregion
 
-        public async Task<ReleaseInfo> GetLatestCardIdlerRelease()
+        public static async Task<ReleaseInfo> GetLatestCardIdlerRelease()
         {
-            ReleaseInfo release = null;
-            ServicePointManager.SecurityProtocol = ServicePointManager.SecurityProtocol | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls12;
-            var response = await DownloadString("https://github.com/AlexanderSharykin/CardIdleRemastered/releases");
-            var doc = new HtmlDocument();
-            doc.LoadHtml(response);
-
-            // profile background
-            HtmlNode html = null;
-            var nodes = doc.DocumentNode.SelectNodes("//div[@class='release-header']");
-            if (nodes != null)
-                html = nodes.FirstOrDefault();
-            if (html != null)
-            {
-                release = new ReleaseInfo();
-                release.Title = html.SelectSingleNode("//h1[contains(@class, 'release-title')]").InnerText.Trim();
-                release.Date = html.SelectSingleNode("//relative-time").InnerText;
-            }
-
-            return release;
+            var json = await DownloadString("https://raw.githubusercontent.com/AlexanderSharykin/CardIdleRemastered/master/Release.json");
+            return JsonConvert.DeserializeObject<ReleaseInfo>(json);
         }
     }
 }

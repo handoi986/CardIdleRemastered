@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.ComponentModel;
+using System.ComponentModel.Design.Serialization;
 using System.Globalization;
 using System.Linq;
 using System.Reflection;
@@ -129,7 +130,7 @@ namespace CardIdleRemastered
             {
                 _isAuthorized = value;
                 OnPropertyChanged();
-                OnPropertyChanged("IsUnknown");
+                OnPropertyChanged(nameof(IsUnknown));
             }
         }
 
@@ -167,7 +168,7 @@ namespace CardIdleRemastered
             {
                 Storage.ShowBackground = _showBackground = value;
                 OnPropertyChanged();
-                OnPropertyChanged("BackgroundUrl");
+                OnPropertyChanged(nameof(BackgroundUrl));
             }
         }
 
@@ -185,7 +186,7 @@ namespace CardIdleRemastered
                     return;
                 _activeProcessCount = value;
                 OnPropertyChanged();
-                OnPropertyChanged("IsCardIdleActive");
+                OnPropertyChanged(nameof(IsCardIdleActive));
             }
         }
 
@@ -232,7 +233,7 @@ namespace CardIdleRemastered
             {
                 Storage.CustomBackgroundUrl = _customBackgroundUrl = value;
                 OnPropertyChanged();
-                OnPropertyChanged("BackgroundUrl");
+                OnPropertyChanged(nameof(BackgroundUrl));
             }
         }
 
@@ -382,10 +383,10 @@ namespace CardIdleRemastered
         public async void CheckLatestRelease()
         {
             var version = Assembly.GetExecutingAssembly().GetName().Version;
-            CurrentVersion = version.Major + "." + version.Minor + "." + version.Build;
+            CurrentVersion = version.ToString();
 
-            NewestRelease = await new SteamParser().GetLatestCardIdlerRelease();
-            CanUpdateApp = NewestRelease.IsOlderThan(version);
+            NewestRelease = await SteamParser.GetLatestCardIdlerRelease();
+            CanUpdateApp = NewestRelease?.IsOlderThan(version) == true;
         }
 
         public CardIdleProfileInfo CardIdleProfile
@@ -430,7 +431,7 @@ namespace CardIdleRemastered
             {
                 bool connected = IsSteamRunning;
                 if (steamRunning != connected)
-                    OnPropertyChanged("IsSteamRunning");
+                    OnPropertyChanged(nameof(IsSteamRunning));
                 steamRunning = connected;
             };
             _tmSteamStatus.Start();
@@ -516,10 +517,9 @@ namespace CardIdleRemastered
             int idx = 0;
             foreach (var id in games)
             {
-                GameIdentity app;
-                _steamApps.TryGetValue(id, out app);
+                _steamApps.TryGetValue(id, out var app);
 
-                var game = new BadgeModel(id, app != null ? app.name : "");
+                var game = new BadgeModel(id, app?.name ?? "");
                 game.PropertyChanged += BadgeIdleStatusChanged;
                 Games.Insert(idx, game);
                 idx++;
@@ -648,27 +648,24 @@ namespace CardIdleRemastered
 
         public ICommand ForceSyncCmd { get; private set; }
 
-        private void ForceSync(object o)
+        private async void ForceSync(object o)
         {
-            _updater.Sync(true);
+            await _updater.Sync(true);
         }
 
         public ICommand StartBadgeIdleCmd { get; private set; }
 
         private void StartBadgeIdle(object o)
         {
-            var badge = o as BadgeModel;
-            if (badge == null)
-                return;
-            badge.CardIdleProcess.Start();
+            if (o is BadgeModel badge)
+            {
+                badge.CardIdleProcess.Start();
+            }
         }
 
         private bool CanStartBadgeIdle(object o)
         {
-            var badge = o as BadgeModel;
-            if (badge == null)
-                return false;
-            return IsSteamRunning && badge.CardIdleProcess.IsRunning == false;
+            return o is BadgeModel badge && IsSteamRunning && badge.CardIdleProcess.IsRunning == false;
         }
 
 

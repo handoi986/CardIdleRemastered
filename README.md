@@ -3,43 +3,32 @@
 
 Card Idle Remastered is a WPF remake of Idle Master, developed by jshackles (https://github.com/jshackles/idle_master). 
 
-It offers rich UI and flexible idle management.
+Card Idle Remastered has an official Steam account: [CardIdleRemastered](https://steamcommunity.com/profiles/76561198801350858/). Invite to friends!
 
-Card Idle Remastered was designed to browse all games with card drops and to idle one selected game as simple as possible (in a single click).
+Application offers rich UI and flexible idle management and was designed to browse all games with card drops and to idle one selected game as simple as possible (in a single click).
 
 It helps to get remaining card drops in games you own without wasting disk space and CPU and RAM resources.
 
-I publish notifications about new Card Idle releases in Twitter [#CardIdleRemastered](https://twitter.com/hashtag/CardIdleRemastered?src=hash). Additionally Card Idle Remastered performs auto-check for new releases at startup.
-
-![](https://github.com/AlexanderSharykin/CardIdleRemastered/blob/master/Install/Card_Idle_Main_Page.png)
+Application also has badges preview feature. Badges art is collected by community and available on SteamCardExchange site.
 
 Requirements
 -------
+
 Steam account with non-F2P games with cards
 
 Minimal understanding of Steam cards, game badges and card drops [Steam FAQ](https://steamcommunity.com/tradingcards/faq)
 
-OS Windows 7 and higher
+OS Windows 10 or 11
 
-.Net Framework 4.5
+.NET 8
 
-Internet Explorer 10 or 11
+Microsoft Edge installed and updated
 
 Stable Internet connection
 
 You should be logged into your Steam account via Steam client to start idling.
 
----
-
-Card Idle has an official Steam account: [CardIdleRemastered](https://steamcommunity.com/profiles/76561198801350858/). Invite to friends!
-
-![](https://github.com/AlexanderSharykin/CardIdleRemastered/blob/master/Install/Card_Idle_Profile.png)
-
----
-
-Card Idle has badges preview feature. Badges art is collected by community and available on SteamCardExchange site.
-
-![](https://github.com/AlexanderSharykin/CardIdleRemastered/blob/master/Install/Card_Idle_Showcases.png)
+Downloading updates when there is a notification about new release is likely a good idea.
 
 ---
 
@@ -78,7 +67,7 @@ Automatic Game Idle Mode
 
 Open **Badges** Tab
 
-Decide which games to idle and add them to the idle queue by clicking Enqueue button
+Decide which games to idle and add them to the **idle queue** by clicking Enqueue button
 
 Enqueue Selected button under the grid will add all games to the queue
 

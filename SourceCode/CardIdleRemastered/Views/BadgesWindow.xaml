@@ -164,14 +164,13 @@
                             Visibility="{Binding Path=CanUpdateApp, Converter={StaticResource BoolToVisible}}"
                             HorizontalAlignment="Center" VerticalAlignment="Bottom">
                     <StackPanel.InputBindings>
-                        <MouseBinding Gesture="LeftClick" Command="{StaticResource ResourceKey=Redirect}" 
-                                  CommandParameter="https://github.com/AlexanderSharykin/CardIdleRemastered/releases"/>
+                        <MouseBinding Gesture="LeftClick" 
+                                      Command="{StaticResource ResourceKey=Redirect}" 
+                                      CommandParameter="https://github.com/AlexanderSharykin/CardIdleRemastered/releases"/>
                     </StackPanel.InputBindings>
                     <TextBlock Text="{x:Static res:Resources.NewRelease}"                            
                            Style="{StaticResource LinkNoToolTip}"/>
-                    <TextBlock Text="{Binding Path=NewestRelease.Title, TargetNullValue=?}"                            
-                           Style="{StaticResource LinkNoToolTip}"/>
-                    <TextBlock Text="{Binding Path=NewestRelease.Date, TargetNullValue=?}"                           
+                    <TextBlock Text="{Binding Path=NewestRelease.CurrentVersion.Number, TargetNullValue=?}"                            
                            Style="{StaticResource LinkNoToolTip}"/>
                     <TextBlock Text="{x:Static res:Resources.DownloadRelease}"                            
                            Style="{StaticResource LinkNoToolTip}"/>

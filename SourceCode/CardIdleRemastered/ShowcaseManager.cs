@@ -34,20 +34,16 @@ namespace CardIdleRemastered
 
         public async Task LoadShowcases(IEnumerable<BadgeModel> badges)
         {
-            var args = new Dictionary<string, string>();
-            BadgeModel badge = null;
             int unknownBadges = 0;
 
             await ReadLocalStorage();
 
             try
             {
-                foreach (var b in badges)
+                foreach (var badge in badges)
                 {
-                    badge = b;
-
                     BadgeShowcase showcase;
-                    _cache.TryGetValue(b.AppId, out showcase);
+                    _cache.TryGetValue(badge.AppId, out showcase);
 
                     if (showcase != null)
                     {
@@ -55,28 +51,23 @@ namespace CardIdleRemastered
                         continue;
                     }
 
-                    bool unknownBadge = false;
-                    if (false == _cache.TryGetValue(badge.AppId, out showcase))
+                    try
                     {
-                        unknownBadge = true;
-                        showcase = await new SteamParser().GetBadgeShowcase(badge.AppId, args);
-                        _cache.Add(badge.AppId, showcase);
-                    }
+                        showcase = await SteamParser.GetBadgeShowcase(badge.AppId);
+                        UpdateCompletion(showcase, badge);
 
-                    UpdateCompletion(showcase, badge);
+                        _cache[badge.AppId] = showcase;
+                        _showcases.Add(showcase);
 
-                    _showcases.Add(showcase);
-
-                    if (unknownBadge)
-                    {
                         unknownBadges++;
-                        await Task.Delay(1500);
                     }
+                    catch(Exception ex)
+                    {
+                        Logger.Exception(ex, String.Format("Showcase loading failed for {0}", badge.AppId));
+                    }
+
+                    await Task.Delay(1500);
                 }
-            }
-            catch (Exception ex)
-            {
-                Logger.Exception(ex, String.Format("Showcase loading failed for {0}", badge.AppId));
             }
             finally
             {
@@ -133,7 +124,7 @@ namespace CardIdleRemastered
                         if (_pricesUpdater.Prices.TryGetValue(appId, out stock))
                         {
                             showcase.CardPrice = stock.CardValue;
-                            showcase.BadgePrice = stock.Normal;
+                            showcase.BadgePrice = stock.BadgePrice;
                             if (!marketable)
                                 showcase.Title = stock.Name;
                         }

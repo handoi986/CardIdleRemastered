@@ -11,15 +11,13 @@ namespace steam_idle
     {
         [STAThread]
         static void Main(string[] args)
-        {            
+        {
             /*
              * Dependencies
              * Steamworks.NET
-             * https://github.com/rlabrecque/Steamworks.NET/tree/master/Standalone
+             * https://www.nuget.org/packages/Steamworks.NET/20.1.0
+             * https://github.com/rlabrecque/Steamworks.NET/releases
              * 
-             * CSteamworks.dll
-             * steam_api.dll
-             * https://github.com/rlabrecque/Steamworks.NET/tree/master/Plugins/x86
              */
 
             if (args == null || args.Length == 0)

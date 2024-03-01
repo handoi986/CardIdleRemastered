@@ -1,11 +1,11 @@
-﻿
+
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2013
 VisualStudioVersion = 12.0.31101.0
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CardIdleRemastered", "CardIdleRemastered\CardIdleRemastered.csproj", "{9E83577C-613C-470E-B152-BB7C632E04C6}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CardIdleRemastered", "CardIdleRemastered\CardIdleRemastered.csproj", "{9E83577C-613C-470E-B152-BB7C632E04C6}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "steam-idle", "steam-idle\steam-idle.csproj", "{E0E49AFD-1101-4815-A1F1-01F65D4D3306}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "steam-idle", "steam-idle\steam-idle.csproj", "{E0E49AFD-1101-4815-A1F1-01F65D4D3306}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

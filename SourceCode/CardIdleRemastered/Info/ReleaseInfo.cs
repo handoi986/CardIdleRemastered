@@ -5,17 +5,24 @@ namespace CardIdleRemastered
 {
     public class ReleaseInfo
     {
-        public string Title { get; set; }
-
-        public string Date { get; set; }
+        public VersionInfo CurrentVersion { get; set; }
 
         private int[] _version;
         public int[] Version
         {
             get
             {
-                if (_version == null && Title != null)
-                    _version = (Title.ToLower().Trim('v') + ".0.0").Split('.').Take(4).Select(int.Parse).ToArray();
+                if (_version == null)
+                {
+                    if (CurrentVersion != null)
+                    {
+                        _version = CurrentVersion.Number.Split('.').Take(4).Select(int.Parse).ToArray();
+                    }
+                    else
+                    {
+                        _version = new int[4] { 1, 0, 0, 0 };
+                    }
+                }
 
                 return _version;
             }
@@ -33,5 +40,10 @@ namespace CardIdleRemastered
                 .FirstOrDefault();
             return delta < 0;
         }
+    }
+
+    public class VersionInfo
+    {
+        public string Number { get; set; }
     }
 }

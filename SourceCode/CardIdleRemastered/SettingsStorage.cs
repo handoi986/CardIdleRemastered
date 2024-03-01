@@ -12,6 +12,8 @@ namespace CardIdleRemastered
     {
         #region Fields
 
+#pragma warning disable IDE0090 // Use 'new(...)'
+
         private readonly StringSettingsValue _sessionId = new StringSettingsValue { Key = "SessionId" };
         private readonly StringSettingsValue _steamLoginSecure = new StringSettingsValue { Key = "SteamLoginSecure" };
         private readonly StringSettingsValue _steamProfileUrl = new StringSettingsValue { Key = "SteamProfileUrl" };
@@ -50,6 +52,8 @@ namespace CardIdleRemastered
         private readonly StringCollectionSettingsValue _showcaseBookmarks = new StringCollectionSettingsValue { Key = "ShowcaseBookmarks" };
         private readonly StringCollectionSettingsValue _blacklist = new StringCollectionSettingsValue { Key = "Blacklist" };
         private readonly StringCollectionSettingsValue _idleQueue = new StringCollectionSettingsValue { Key = "IdleQueue" };
+
+#pragma warning restore IDE0090
 
         #endregion
 
